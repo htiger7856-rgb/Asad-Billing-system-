@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  <title>Invoice App</title>
+
+  <!-- ⭐ IMPORTANT: PDF Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+</head>
+<body>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -157,8 +169,43 @@
   }
 
   function downloadPDF() {
-    window.print(); // Simple export (works on all browsers)
-  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFontSize(18);
+  doc.text("Invoice", 14, 20);
+
+  // Table Rows from invoice array
+  const rows = invoice.map(item => [
+    item.name,
+    item.rate,
+    item.qty,
+    item.rate * item.qty
+  ]);
+
+  // Table
+  doc.autoTable({
+    head: [["Product", "Rate", "Qty", "Total"]],
+    body: rows,
+    startY: 30
+  });
+
+  // Totals
+  let subtotal = invoice.reduce((a, b) => a + b.rate * b.qty, 0);
+  let d = Number(discount.value);
+  let grand = subtotal - d;
+
+  let y = doc.lastAutoTable.finalY + 10;
+
+  doc.text(`Subtotal: ${subtotal}`, 14, y);
+  doc.text(`Discount: ${d}`, 14, y + 10);
+  doc.text(`Grand Total: ${grand}`, 14, y + 20);
+
+  // ⭐ Direct PDF Save (No Print Window)
+  doc.save("invoice.pdf");
+}
+  
 
   renderProducts();
 </script>
