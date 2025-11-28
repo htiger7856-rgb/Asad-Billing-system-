@@ -1,27 +1,22 @@
 <!DOCTYPE html>
-<html>
-<head>
-
-  <meta charset="UTF-8">
-  <title>Invoice App</title>
-
-  <!-- ⭐ IMPORTANT: PDF Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
-</head>
-<body>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Invoice App</title>
-  <link rel="manifest" href="manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Service Worker -->
+  <link rel="manifest" href="manifest.json">
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
     }
   </script>
+
+  <!-- ⭐ PDF Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
   <style>
     body { font-family: Arial; padding: 20px; }
     input, button, table { margin: 5px; }
@@ -51,6 +46,7 @@
 <p>
   Discount: <input id="discount" type="number" value="0" oninput="calculateTotal()">
 </p>
+
 <h3>Total: <span id="total">0</span></h3>
 
 <button onclick="clearBill()">Clear Bill</button>
@@ -169,45 +165,40 @@
   }
 
   function downloadPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  // Title
-  doc.setFontSize(18);
-  doc.text("Invoice", 14, 20);
+    doc.setFontSize(18);
+    doc.text("Invoice", 14, 20);
 
-  // Table Rows from invoice array
-  const rows = invoice.map(item => [
-    item.name,
-    item.rate,
-    item.qty,
-    item.rate * item.qty
-  ]);
+    const rows = invoice.map(item => [
+      item.name,
+      item.rate,
+      item.qty,
+      item.rate * item.qty
+    ]);
 
-  // Table
-  doc.autoTable({
-    head: [["Product", "Rate", "Qty", "Total"]],
-    body: rows,
-    startY: 30
-  });
+    doc.autoTable({
+      head: [["Product", "Rate", "Qty", "Total"]],
+      body: rows,
+      startY: 30
+    });
 
-  // Totals
-  let subtotal = invoice.reduce((a, b) => a + b.rate * b.qty, 0);
-  let d = Number(discount.value);
-  let grand = subtotal - d;
+    let subtotal = invoice.reduce((a, b) => a + b.rate * b.qty, 0);
+    let d = Number(discount.value);
+    let grand = subtotal - d;
 
-  let y = doc.lastAutoTable.finalY + 10;
+    let y = doc.lastAutoTable.finalY + 10;
 
-  doc.text(`Subtotal: ${subtotal}`, 14, y);
-  doc.text(`Discount: ${d}`, 14, y + 10);
-  doc.text(`Grand Total: ${grand}`, 14, y + 20);
+    doc.text(`Subtotal: ${subtotal}`, 14, y);
+    doc.text(`Discount: ${d}`, 14, y + 10);
+    doc.text(`Grand Total: ${grand}`, 14, y + 20);
 
-  // ⭐ Direct PDF Save (No Print Window)
-  doc.save("invoice.pdf");
-}
-  
+    doc.save("invoice.pdf");
+  }
 
   renderProducts();
 </script>
+
 </body>
 </html>
